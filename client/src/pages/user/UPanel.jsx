@@ -31,7 +31,7 @@ export default function UPanel() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/auth/me", {
+        const res = await axios.get("https://eventx-zo1r.onrender.com/api/auth/me", {
           withCredentials: true,
         });
         setUserData(res.data);
@@ -49,7 +49,7 @@ export default function UPanel() {
   const logout = async () => {
     try {
       await axios.post(
-        "http://localhost:5000/api/auth/logout",
+        "https://eventx-zo1r.onrender.com/api/auth/logout",
         {},
         { withCredentials: true }
       );

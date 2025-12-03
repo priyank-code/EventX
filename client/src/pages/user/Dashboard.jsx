@@ -11,13 +11,13 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         // Fetch dashboard stats
-        const statsRes = await axios.get("http://localhost:5000/api/auth/dashboard", {
+        const statsRes = await axios.get("https://eventx-zo1r.onrender.com/api/auth/dashboard", {
           withCredentials: true,
         });
         setStats(statsRes.data.data);
 
         // Fetch user info
-        const userRes = await axios.get("http://localhost:5000/api/auth/me", {
+        const userRes = await axios.get("https://eventx-zo1r.onrender.com/api/auth/me", {
           withCredentials: true,
         });
         setUser(userRes.data);

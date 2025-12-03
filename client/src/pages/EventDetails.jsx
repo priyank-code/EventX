@@ -14,7 +14,7 @@ export default function EventDetails() {
   useEffect(() => {
     const loadEvent = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/events/${id}`);
+        const res = await axios.get(`https://eventx-zo1r.onrender.com/api/events/${id}`);
         setEvent(res.data);
 
         // Select first ticket with remaining seats

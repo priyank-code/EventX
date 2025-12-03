@@ -24,7 +24,7 @@ setLoading(true);
 
 try {
   const res = await axios.post(
-    "http://localhost:5000/api/auth/register",
+    "https://eventx-zo1r.onrender.com/api/auth/register",
     {
       name: form.name,
       email: form.email,

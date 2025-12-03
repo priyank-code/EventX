@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await axios.get("http://localhost:5000/api/auth/me", {
+        await axios.get("https://eventx-zo1r.onrender.com/api/auth/me", {
           withCredentials: true,
         });
         setOk(true);

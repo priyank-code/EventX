@@ -11,7 +11,7 @@ export default function MyTicketsPage() {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/tickets/my", {
+        const res = await axios.get("https://eventx-zo1r.onrender.com/api/tickets/my", {
           withCredentials: true,
         });
         setTickets(res.data.tickets || []);

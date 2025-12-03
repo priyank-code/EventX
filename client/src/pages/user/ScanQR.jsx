@@ -39,7 +39,7 @@ const ScanQR = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/tickets/verify",
+        "https://eventx-zo1r.onrender.com/api/tickets/verify",
         { text },
         {
           withCredentials: true, // cookie-based auth

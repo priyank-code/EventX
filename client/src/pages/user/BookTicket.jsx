@@ -12,7 +12,7 @@ export default function BookTicket() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/events/all");
+        const res = await axios.get("https://eventx-zo1r.onrender.com/api/events/all");
         setEvents(res.data);
 
         const initialQuantities = {};
@@ -82,7 +82,7 @@ export default function BookTicket() {
     try {
       for (const item of cart) {
         await axios.post(
-          "http://localhost:5000/api/tickets/buy",
+          "https://eventx-zo1r.onrender.com/api/tickets/buy",
           {
             eventId: item.eventId,
             ticketType: item.ticketType,

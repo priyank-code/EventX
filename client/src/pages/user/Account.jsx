@@ -16,7 +16,7 @@ export default function UserProfileUpdate() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/auth/me", {
+        const res = await axios.get("https://eventx-zo1r.onrender.com/api/auth/me", {
           withCredentials: true,
         });
         setUser(res.data);
@@ -43,7 +43,7 @@ export default function UserProfileUpdate() {
     try {
       setUpdating(true);
       await axios.put(
-        "http://localhost:5000/api/auth/update",
+        "https://eventx-zo1r.onrender.com/api/auth/update",
         {
           name: form.name,
           password: form.password || undefined,
