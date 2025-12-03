@@ -1,0 +1,180 @@
+{
+  "info": {
+    "_postman_id": "eventx-backend-collection",
+    "name": "EVENTX – Ticketing System API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{BASE_URL}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\":\"Priyank\",\n    \"email\":\"test@test.com\",\n    \"password\":\"123456\",\n    \"role\":\"user\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{BASE_URL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\":\"test@test.com\",\n    \"password\":\"123456\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Organizer – Events",
+      "item": [
+        {
+          "name": "Create Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{TOKEN}}" }
+            ],
+            "url": "{{BASE_URL}}/api/events/create",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Music Festival" },
+                { "key": "description", "value": "Biggest event" },
+                { "key": "category", "value": "Music" },
+                { "key": "date", "value": "2025-12-01" },
+                { "key": "time", "value": "07:00 PM" },
+                { "key": "venue", "value": "Stadium" },
+                { "key": "tickets", "value": "[{\"type\":\"VIP\",\"price\":500,\"totalSeats\":50,\"remainingSeats\":50}]" },
+                {
+                  "key": "banner",
+                  "type": "file",
+                  "src": "/C:/temp/banner.jpg"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Approved Events",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/events/all"
+          }
+        },
+        {
+          "name": "Get Single Event",
+          "request": {
+            "method": "GET",
+            "url": "{{BASE_URL}}/api/events/674a8b6d12a1bc9999999999"
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "User – Tickets",
+      "item": [
+        {
+          "name": "Buy Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{BASE_URL}}/api/tickets/buy",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"eventId\":\"674a8b6d12a1bc9999999999\",\n    \"ticketType\":\"VIP\",\n    \"amountPaid\":500\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Ticket (Scanner)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{BASE_URL}}/api/tickets/verify",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"text\":\"USERID-EVENTID-TIMESTAMP\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Approve Event",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": "{{BASE_URL}}/api/admin/event/approve/674a8b6d12a1bc9999999999"
+          }
+        },
+        {
+          "name": "Reject Event",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": "{{BASE_URL}}/api/admin/event/reject/674a8b6d12a1bc9999999999"
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": "{{BASE_URL}}/api/admin/users"
+          }
+        },
+        {
+          "name": "Get All Organizers",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": "{{BASE_URL}}/api/admin/organizers"
+          }
+        },
+        {
+          "name": "Get All Events",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": "{{BASE_URL}}/api/admin/events"
+          }
+        },
+        {
+          "name": "Get Analytics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ADMIN_TOKEN}}" }],
+            "url": "{{BASE_URL}}/api/admin/analytics"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "BASE_URL", "value": "http://localhost:5000" },
+    { "key": "TOKEN", "value": "" },
+    { "key": "ADMIN_TOKEN", "value": "" }
+  ]
+}
