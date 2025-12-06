@@ -7,9 +7,10 @@ const ScanQR = () => {
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Only success sound
-  const playSuccess = () => {
-    const audio = new Audio("/sounds/success.mp3");
+  // Sound players
+  const playSound = (type) => {
+    let audioPath = "/sounds/success.mp3"; // tumhare pass only success hai
+    const audio = new Audio(audioPath);
     audio.play().catch(() => {});
   };
 
@@ -34,20 +35,22 @@ const ScanQR = () => {
     try {
       const res = await axios.post(
         "https://eventx-zo1r.onrender.com/api/tickets/verify",
-        { text },
-        { withCredentials: true }
+        { qrText: text },
+        {
+          withCredentials: true,
+        }
       );
 
       const msg = res.data.msg;
       setStatus(msg);
 
-      // Only play sound when ticket is valid
-      if (msg === "Valid ticket") {
-        playSuccess();
-      }
+      // Sirf success sound
+      playSound("success");
+
     } catch (err) {
       console.log(err);
-      setStatus("Something went wrong!");
+      setStatus(err.response?.data?.msg || "Something went wrong!");
+      playSound("error");
     }
 
     setLoading(false);
