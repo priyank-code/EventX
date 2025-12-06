@@ -9,7 +9,7 @@ const ScanQR = () => {
 
   // Sound players
   const playSound = (type) => {
-    let audioPath = "/sounds/success.mp3"; // tumhare pass only success hai
+    let audioPath = "/sounds/success.mp3";
     const audio = new Audio(audioPath);
     audio.play().catch(() => {});
   };
@@ -35,7 +35,7 @@ const ScanQR = () => {
     try {
       const res = await axios.post(
         "https://eventx-zo1r.onrender.com/api/tickets/verify",
-        { qrText: text },
+        { text },
         {
           withCredentials: true,
         }
