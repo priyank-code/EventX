@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useZxing } from "react-zxing";
 import axios from "axios";
 
@@ -7,10 +7,16 @@ const ScanQR = () => {
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Sound players
-  const playSound = (type) => {
-    let audioPath = "/sounds/success.mp3";
-    const audio = new Audio(audioPath);
+  // Unlock audio permission (hack)
+  useEffect(() => {
+    const audio = new Audio("/sounds/success.mp3");
+    audio.volume = 0;
+    audio.play().catch(() => {});
+  }, []);
+
+  // Sound
+  const playSound = () => {
+    const audio = new Audio("/sounds/success.mp3");
     audio.play().catch(() => {});
   };
 
@@ -36,21 +42,17 @@ const ScanQR = () => {
       const res = await axios.post(
         "https://eventx-zo1r.onrender.com/api/tickets/verify",
         { text },
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       const msg = res.data.msg;
       setStatus(msg);
 
-      // Sirf success sound
-      playSound("success");
-
+      playSound();
     } catch (err) {
       console.log(err);
       setStatus(err.response?.data?.msg || "Something went wrong!");
-      playSound("error");
+      playSound();
     }
 
     setLoading(false);
@@ -60,8 +62,11 @@ const ScanQR = () => {
     <div className="w-full flex flex-col items-center mt-6 px-4">
       <h2 className="text-xl font-bold mb-4">Scan Ticket QR</h2>
 
+      {/* Camera view (stable UI) */}
       <div className="w-full max-w-sm rounded-xl overflow-hidden shadow-xl bg-black">
-        <video ref={ref} className="w-full" />
+        <div className="w-full h-80">
+          <video ref={ref} className="w-full h-full object-cover" />
+        </div>
       </div>
 
       <div className="mt-4 text-center">
