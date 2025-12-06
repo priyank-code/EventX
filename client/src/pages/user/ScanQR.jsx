@@ -1,57 +1,95 @@
-import React, { useState, useEffect } from "react";
-import { useZxing } from "react-zxing";
+import React, { useState, useEffect, useRef } from "react";
+import { BrowserMultiFormatReader } from "@zxing/library";
 import axios from "axios";
 
 const ScanQR = () => {
-  const [scanText, setScanText] = useState("");
+  const videoRef = useRef(null);
+  const codeReaderRef = useRef(null);
+
   const [status, setStatus] = useState("");
+  const [scanning, setScanning] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Unlock audio permission (hack)
+  // Unlock audio on first mount (mobile autoplay fix)
   useEffect(() => {
     const audio = new Audio("/sounds/success.mp3");
     audio.volume = 0;
     audio.play().catch(() => {});
   }, []);
 
-  // Sound
   const playSound = () => {
     const audio = new Audio("/sounds/success.mp3");
     audio.play().catch(() => {});
   };
 
-  const { ref } = useZxing({
-    onDecodeResult(result) {
-      const text = result.getText();
-      handleScan(text);
-    },
-    constraints: {
-      video: { facingMode: "environment" },
-    },
-  });
+  const startScanner = async () => {
+    setStatus("");
+    setLoading(false);
+    setScanning(true);
 
-  const handleScan = async (text) => {
-    if (!text) return;
-    if (text === scanText) return;
+    codeReaderRef.current = new BrowserMultiFormatReader();
 
-    setScanText(text);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+      });
+
+      videoRef.current.srcObject = stream;
+      videoRef.current.setAttribute("playsinline", true);
+      await videoRef.current.play();
+
+      codeReaderRef.current.decodeFromVideoDevice(
+        null,
+        videoRef.current,
+        async (result) => {
+          if (result) {
+            handleScan(result.getText());
+          }
+        }
+      );
+    } catch (err) {
+      console.error(err);
+      setStatus("Camera not allowed");
+    }
+  };
+
+  const stopScanner = () => {
+    setScanning(false);
+    setStatus("");
+    setLoading(false);
+
+    if (codeReaderRef.current) {
+      codeReaderRef.current.reset();
+    }
+
+    if (videoRef.current?.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+    }
+  };
+
+  const refreshScanner = () => {
+    stopScanner();
+    setTimeout(() => startScanner(), 300);
+  };
+
+  const handleScan = async (qrText) => {
+    stopScanner(); // freeze UI on scan
     setLoading(true);
     setStatus("");
 
     try {
       const res = await axios.post(
         "https://eventx-zo1r.onrender.com/api/tickets/verify",
-        { text },
+        { text: qrText },
         { withCredentials: true }
       );
 
       const msg = res.data.msg;
       setStatus(msg);
-
       playSound();
     } catch (err) {
       console.log(err);
-      setStatus(err.response?.data?.msg || "Something went wrong!");
+      setStatus(err.response?.data?.msg || "Error");
       playSound();
     }
 
@@ -62,23 +100,49 @@ const ScanQR = () => {
     <div className="w-full flex flex-col items-center mt-6 px-4">
       <h2 className="text-xl font-bold mb-4">Scan Ticket QR</h2>
 
-      {/* Camera view (stable UI) */}
+      {/* CAMERA FRAME */}
       <div className="w-full max-w-sm rounded-xl overflow-hidden shadow-xl bg-black">
         <div className="w-full h-80">
-          <video ref={ref} className="w-full h-full object-cover" />
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover"
+          ></video>
         </div>
       </div>
 
-      <div className="mt-4 text-center">
-        <p className="font-semibold">
-          {scanText ? `Scanned: ${scanText}` : "No scan yet"}
-        </p>
+      {/* CONTROLS */}
+      <div className="flex gap-3 mt-4">
+        {!scanning ? (
+          <button
+            onClick={startScanner}
+            className="px-5 py-2 bg-green-600 text-white rounded-lg font-semibold"
+          >
+            Start Scan
+          </button>
+        ) : (
+          <button
+            onClick={stopScanner}
+            className="px-5 py-2 bg-red-600 text-white rounded-lg font-semibold"
+          >
+            Stop Scan
+          </button>
+        )}
 
-        {loading && <p className="text-blue-500 mt-1">Verifying...</p>}
+        <button
+          onClick={refreshScanner}
+          className="px-5 py-2 bg-blue-600 text-white rounded-lg font-semibold"
+        >
+          Refresh
+        </button>
+      </div>
 
-        {status && (
+      {/* STATUS */}
+      <div className="mt-4 text-center min-h-6">
+        {loading && <p className="text-blue-500 font-bold">Verifying...</p>}
+
+        {!loading && status && (
           <p
-            className={`mt-2 font-bold ${
+            className={`text-lg font-bold ${
               status === "Valid ticket"
                 ? "text-green-600"
                 : status === "Already scanned"
