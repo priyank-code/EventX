@@ -8,6 +8,7 @@ const ticketSchema = new mongoose.Schema(
     quantity: { type: Number, default: 1 },
     amountPaid: Number,
     qrCodeUrl: String,
+    qrText: { type: String, unique: true },
     isUsed: { type: Boolean, default: false },
   },
   { timestamps: true }

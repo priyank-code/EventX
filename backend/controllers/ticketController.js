@@ -3,7 +3,7 @@ const Event = require("../models/event.model.js");
 const { generateQR } = require("../utils/generateQR");
 const { uploadBuffer } = require("../utils/cloudinary");
 
-// Buy ticket
+// BUY TICKET (MULTIPLE UNIQUE QRS)
 exports.buyTicket = async (req, res) => {
   try {
     const { eventId, ticketType, quantity } = req.body;
@@ -20,8 +20,11 @@ exports.buyTicket = async (req, res) => {
     t.remainingSeats -= quantity;
     await event.save();
 
-    // Generate QR for this ticket (you can generate multiple if needed)
-    const qrText = `${req.user.id}-${eventId}-${Date.now()}`;
+    // UNIQUE QR code text
+    const qrText = `${req.user.id}_${eventId}_${ticketType}_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(2)}`;
+
     const qrBuffer = await generateQR(qrText);
     const qrUrl = await uploadBuffer(qrBuffer, "qrcodes");
 
@@ -32,7 +35,7 @@ exports.buyTicket = async (req, res) => {
       quantity,
       amountPaid: t.price * quantity,
       qrCodeUrl: qrUrl,
-      qrText
+      qrText,
     });
 
     res.json({ msg: "Ticket purchased", ticket });
@@ -42,21 +45,16 @@ exports.buyTicket = async (req, res) => {
   }
 };
 
-
-// Verify ticket via QR
+// VERIFY TICKET (NOW BASED ON QR TEXT ONLY)
 exports.verifyTicket = async (req, res) => {
   try {
     const { text } = req.body;
     if (!text) return res.status(400).json({ msg: "QR text required" });
 
-    const parts = text.split("-");
-    if (parts.length < 2) return res.status(400).json({ msg: "Invalid QR format" });
+    const ticket = await Ticket.findOne({ qrText: text });
 
-    const userId = parts[0];
-    const eventId = parts[1];
-
-    const ticket = await Ticket.findOne({ userId, eventId });
     if (!ticket) return res.json({ msg: "Invalid ticket" });
+
     if (ticket.isUsed) return res.json({ msg: "Already scanned" });
 
     ticket.isUsed = true;
@@ -69,15 +67,10 @@ exports.verifyTicket = async (req, res) => {
   }
 };
 
-// ✅ Get all tickets for a user
+// GET ALL TICKETS OF USER
 exports.getTickets = async (req, res) => {
   try {
-    const userId = req.user.id; // middleware se authenticated user
-
-    const tickets = await Ticket.find({ userId }).populate("eventId");
-
-    if (!tickets || tickets.length === 0)
-      return res.json({ msg: "No tickets found", tickets: [] });
+    const tickets = await Ticket.find({ userId: req.user.id }).populate("eventId");
 
     res.json({ msg: "Tickets fetched", tickets });
   } catch (err) {
